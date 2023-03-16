@@ -5,6 +5,12 @@
   <meta charset="UTF-8" />
   <!-- import CSS -->
   <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+  <!-- import vue  -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-router@3.1.5/dist/vue-router.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuex@3.1.2/dist/vuex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.19.2/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@4.6.0/dist/echarts.simple.min.js"></script>
 </head>
 <style type="text/css">
   .msgCss {
@@ -15,40 +21,41 @@
 
 <body>
   <div id="app">
-    <el-config-provider namespace="ep">
+    <el-config-provider namespace="ep" style="background-color: #E2D8D0;">
       <!-- 设置head -->
-      <el-menu class="menu" mode="horizontal">
+      <el-menu class="menu" mode="horizontal" style="background-color: #F9A647;">
         <el-menu-item index="1"
           style="color: rgb(0, 0, 0); font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; font-size: larger;">Mini-ChatGPT</el-menu-item>
         <el-menu-item index="2">
           <el-button @click="visible = true" type="primary" style="background-color: lightskyblue;">Start</el-button>
         </el-menu-item>
         <el-menu-item index="3">
-          <!-- <el-button @click="visible11 = true" type="success">Orders</el-button> -->
+          <el-button  @click="(e)=>{
+          visible1 = true;
+          getData();
+          }" type="success">Orders</el-button>
         </el-menu-item>
       </el-menu>
-      <!-- 设置side -->
-      <div>
-        <div style="width: 160px; height: auto;">
-          <el-menu
-            class="el-menu-vertical-demo"
-          >
-            <el-menu-item index="1">
-                <template #title>Navigator One</template>
-            </el-menu-item>
-            <el-menu-item index="2">
-              <template #title>Navigator Two</template>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <template #title>Navigator Three</template>
+    <!-- 设置side -->
+      <div style="background-color: #E2D8D0; height:fit-content;" >
+        <div style="float: left; width: 150px; background-color: #185864;">
+          <el-menu style="height: 700px; width: 150px; background-color: #185864;">
+            <el-menu-item style="background-color: #E2D8D0;">
+              <template>主页</template>
             </el-menu-item>
           </el-menu>
         </div>
-
-        <div>
+        <!-- 设置走马灯 -->
+        <div class="block_text-center">
+          <span class="demonstration"><p><b>Let's Start!</b></p></span>
+          <el-carousel :interval="4000" height="300px" type="card">
+            <el-carousel-item v-for="item in 3" :key="item">
+            </el-carousel-item>
+          </el-carousel>
+        </div>
+        <div style="height: 295px;">
 
         </div>
-
 
         <!-- 设置对话框 -->
         <el-dialog :visible.sync="visible" title="对话框" width="70%">
@@ -84,24 +91,6 @@
               </span>
             </div>
           </div>
-
-          <!-- <template>
-            <el-row class="demo-autocomplete">
-              <el-col :span="12">
-                <el-autocomplete
-                  v-model="input3"
-                  :fetch-suggestions="querySearch"
-                  :trigger-on-focus="false"
-                  :autofocus="true"
-                  ref="serachBox"
-                  clearable
-                  class="input-with-select"
-                  placeholder="Please Input"
-                  @select="handleSelect"
-                />
-              </el-col>
-            </el-row>
-          </template> -->
           <!-- input area -->
           <div style="margin-top: 15px">
             <el-input placeholder="请输入内容" v-model="input3" class="input-with-select" :autofocus="true" ref="serachBox">
@@ -110,17 +99,19 @@
             </el-input>
           </div>
         </el-dialog>
+
+        <!-- 设置热搜框 -->
+              
+        <el-dialog :visible.sync="visible1" title="热搜榜单" width="80%">
+          <el-table :data="tableData" stripe style="height: 500px ; width: 100%">
+            <el-table-column prop="question" label="Question" />
+          </el-table>
+        </el-dialog>
       </div>
     </el-config-provider>
   </div>
 </body>
 
-<!-- 导入依赖  -->
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-router@3.1.5/dist/vue-router.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vuex@3.1.2/dist/vuex.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios@0.19.2/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@4.6.0/dist/echarts.simple.min.js"></script>
 <script>
   if (typeof Vue == "undefined") {
     document.write(
@@ -151,23 +142,23 @@
     );
   }
 </script>
-
-
 <!-- import JavaScript -->
 <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-<script>
+<script setup>
   //创建vue框架
   new Vue({
     el: "#app",
     data: function () {
       return {
+        visible1: false,
         visible: false,
         input3: "",
         list: [],
         loading: false,
+        tableData: [],
       };
     },
-    created: function () {
+    created: function (){
       document.addEventListener("keydown", (e) => {
         let key = window.event.keyCode;
         if (key == 13 && !this.loading) {
@@ -196,26 +187,18 @@
       getMsg() {
         // 处理自己的接口请求 返回需要的数据
         axios
-          .post("http://127.0.0.1:8000/server",
+          .post("http://127.0.0.1:8000/dialog",
             { info: this.input3 }
           )
           .then(async (response) => {
             console.log(response);
             if (response.status == 200) {
-
-              // 自行处理需要的数据
-
               const msg = response.data;
               let listMsg = {
                 align: "left",
                 text: msg[0].answer,
                 link: "", 
               };
-              // if (msg.flag == 1) {
-              //   const splitMsg = msg.answer.split("：");
-              //   listMsg.text = splitMsg[0];
-              //   listMsg.link = splitMsg[1];
-              // }
               await this.list.push(listMsg);
               await this.scrollTop11();
             }
@@ -225,19 +208,30 @@
             console.log(error);
             this.loading = false;
           });
-        /*
-         * 模拟信息返回
-         */
-        // setTimeout(async () => {
-        //   let listMsg = {
-        //     align: "left",
-        //     text: "123",
-        //     link: "",
-        //   };
-        //   await this.list.push(listMsg);
-        //   await this.scrollTop11();
-        //   this.loading = false;
-        // }, 1000);
+      },
+      getData(){
+        console.log(1);
+        axios
+        .post("http://127.0.0.1:8000/data")
+        .then((response) => {
+            if(response.status == 200){
+              const data =response.data;
+              for(var i = 0;i < 4; i++){
+                let tableDataMsg = {
+                  id: data[i].id,
+                  question: data[i].question,
+                  answer: data[i].answer,
+                  number: data[i].number,
+                };
+                this.tableData.push(tableDataMsg);
+              }
+              this.tableData.sort((a,b)=> b.number - a.number);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            this.loading = false;
+          });
       },
       // 处理滚动条一直保持最上方
       scrollTop11() {
@@ -271,6 +265,38 @@
   font-size: 14px;
   border-radius: 2px;
 }
+</style>
+
+<style scoped>
+  .demonstration p{
+    /* color: var(--el-text-color-secondary); */
+    text-align: center;
+    font-family:'Arial Black, Gadget, sans-serif';
+    font-size:xx-large;
+  }
+  
+  .el-carousel__item h3 {
+    color: #475669;
+    opacity: 0.75;
+    line-height: 150px;
+    margin: 0;
+    text-align: center;
+  }
+  
+  .el-carousel__item:nth-child(3n) {
+    background-image: url(./image/2.jpg);
+    background-color: #99a9bf;
+  }
+  
+  .el-carousel__item:nth-child(3n + 1) {
+    background-image: url(./image/robot.jpg);
+    background-color: #d3dce6;
+  }
+
+  .el-carousel__item:nth-child(3n + 2) {
+    background-image: url(./image/1.jpg);
+    background-color: #d3dce6;
+  }
 </style>
 
 </html>

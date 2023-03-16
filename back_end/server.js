@@ -2,11 +2,11 @@
 const express = require('express');
 const mysql = require("mysql");
 const bodyparser = require('body-parser');
-
+const { request } = require('express');
 //创建应用对象
 const app = express();
 app.use(bodyparser.json())
-
+//设置响应头
 app.all('*', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
@@ -14,7 +14,6 @@ app.all('*', function (req, res, next) {
     res.header('Content-Type', 'application/json;charset=utf-8');
     next();
 });
-
 //链接数据库
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -26,29 +25,57 @@ var connection = mysql.createConnection({
 connection.connect();
 
 
-// var sql = 'SELECT * FROM reply';
 
 var currentConnection = 0;
 const maxConnection = 3;
+var num = 0;
+var id = 0;
 
-app.post('/server', (request, response) => {
+app.post('/dialog', (request, response) => {
+    //检测并发连接数，并返回报文
     if (currentConnection >= maxConnection) {
         response.send(JSON.stringify({ code: 403, msg: "Server is full." }));
         return;
     }
     currentConnection++;
+    //获取number属性
+    let sql3 = 'SELECT number FROM reply WHERE question=\"' + request.body.info + "\"";
+    connection.query(sql3, (err, result) => {
+        if (err) {
+            console.log('[query]-:' + err);
+        } else {
+            if(JSON.stringify(result) == "[]"){
+                return;
+            }
+            console.log(result);
+            num = JSON.parse(JSON.stringify(result))[0].number + 1;
+        }
+    });
+    //获取id属性
+    let sql4 = 'SELECT id FROM reply WHERE question=\"' + request.body.info + "\"";
+    connection.query(sql4, (err, result) => {
+        if (err) {
+            console.log('[query]-:' + err);
+        } else {
+            if(JSON.stringify(result) == "[]"){
+                return;
+            }
+            console.log(result);
+            id = (JSON.parse(JSON.stringify(result))[0].id);
+            //更新number
+            let sql2 = 'UPDATE reply SET number='+ num +' WHERE id=' + id;
+            console.log(sql2);
+            connection.query(sql2,(err,result)=>{
+                if(err) {
+                    console.log(err);
+                    return
+                }           
+                console.log(result); // 打印添加结果
+            })
+        }
+    });
+    //返回消息
     let sql1 = 'SELECT answer FROM reply WHERE question=\"' + request.body.info + "\"";
-    // let sql2 = 'UPDATE reply SET number=? where question=?'
-    // let sqlParams = [2,"\""+request.body.info+"\""]
-    // if(!JSON.stringify(result) == "[]"){
-    //     connection.query(sql2,sqlParams,(err,result)=>{
-    //         if(err) {
-    //             console.log(err);
-    //             return
-    //         }           
-    //         console.log(result); // 打印添加结果
-    //     })
-    // }
     connection.query(sql1, (err, result) => {
         if (err) {
             console.log('[query]-:' + err);
@@ -59,6 +86,19 @@ app.post('/server', (request, response) => {
             console.log(result);
             response.setHeader('Access-Control-Allow-Origin', '*');
             currentConnection--;
+            response.send(JSON.stringify(result));
+        }
+    });
+})
+
+app.post('/data',(request,response) => {
+    let sql1 = 'SELECT * FROM reply ';
+    connection.query(sql1, (err, result) => {
+        if (err) {
+            console.log('[query]-:' + err);
+        } else {
+            console.log(result);
+            response.setHeader('Access-Control-Allow-Origin', '*');
             response.send(JSON.stringify(result));
         }
     });
