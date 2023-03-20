@@ -21,94 +21,96 @@
 
 <body>
   <div id="app">
-    <el-config-provider namespace="ep" style="background-color: #E2D8D0;">
-      <!-- 设置head -->
-      <el-menu class="menu" mode="horizontal" style="background-color: #F9A647;">
-        <el-menu-item index="1"
-          style="color: rgb(0, 0, 0); font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; font-size: larger;">Mini-ChatGPT</el-menu-item>
-        <el-menu-item index="2">
-          <el-button @click="visible = true" type="primary" style="background-color: lightskyblue;">Start</el-button>
-        </el-menu-item>
-        <el-menu-item index="3">
-          <el-button  @click="(e)=>{
-          visible1 = true;
-          getData();
-          }" type="success">Orders</el-button>
-        </el-menu-item>
-      </el-menu>
-    <!-- 设置side -->
-      <div style="background-color: #E2D8D0; height:fit-content;" >
-        <div style="float: left; width: 150px; background-color: #185864;">
-          <el-menu style="height: 700px; width: 150px; background-color: #185864;">
-            <el-menu-item style="background-color: #E2D8D0;">
-              <template>主页</template>
-            </el-menu-item>
-          </el-menu>
-        </div>
-        <!-- 设置走马灯 -->
-        <div class="block_text-center">
-          <span class="demonstration"><p><b>Let's Start!</b></p></span>
-          <el-carousel :interval="4000" height="300px" type="card">
-            <el-carousel-item v-for="item in 3" :key="item">
-            </el-carousel-item>
-          </el-carousel>
-        </div>
-        <div style="height: 295px;">
-
-        </div>
-
-        <!-- 设置对话框 -->
-        <el-dialog :visible.sync="visible" title="对话框" width="70%">
-          <!-- Chat Box -->
-          <div style="height: 500px; overflow-y: auto;" id="bigBox">
-            <div v-for="(item, index) in list" class="msgCss" :style="{textAlign: item.align}">
-              <span v-if="item && item.align == 'left'">
-                <div class="robotBox">
-                  <img style="
-                  width: 50px;
-                  height: 50px;
-                  vertical-align: middle;
-                  border-radius: 50%;
-                  padding-right: 10px;
-                " src=".\image\robot.jpg" alt="" />
-                  <span v-if="item && item.link == ''" class="robotText">{{item.text}}</span>
-                  <span v-if="item && item.link">: <a :href="item.link" target="_blank">{{item.text}}</a></span>
-                </div>
-              </span>
-              <span v-if="item && item.align == 'right'">
-                <div class="userBox">
-                  <span class="userText">{{item.text}}</span>
-                  <img style="
-                  width: 50px;
-                  height: 50px;
-                  vertical-align: middle;
-                  border-radius: 50%;
-                  padding-right: 10px;
-                  padding-left: 10px;
-                " src=".\image\user.jpg" alt="" />
-                </div>
-
-              </span>
+    <template>
+      <el-config-provider namespace="ep" style="background-color: #E2D8D0;">
+        <!-- 设置head -->
+        <el-menu class="menu" mode="horizontal" style="background-color: #F9A647;">
+          <el-menu-item index="1"
+            style="color: rgb(0, 0, 0); font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; font-size: larger;">Mini-ChatGPT</el-menu-item>
+          <el-menu-item index="2">
+            <el-button @click="visible = true" type="primary" style="background-color: lightskyblue;">Start</el-button>
+          </el-menu-item>
+          <el-menu-item index="3">
+            <el-button  @click="(e)=>{
+            visible1 = true;
+            getData();
+            }" type="success">热搜榜单</el-button>
+          </el-menu-item>
+        </el-menu>
+       <!-- 设置side -->
+        <div style="background-color: #E2D8D0; height:fit-content;" >
+          <div style="float: left; width: 150px; background-color: #185864;">
+            <el-menu style="height: 700px; width: 150px; background-color: #185864;">
+              <el-menu-item style="background-color: #E2D8D0;">
+                <template>主页</template>
+              </el-menu-item>
+            </el-menu>
+          </div>
+          <!-- 设置走马灯 -->
+          <div class="block_text-center">
+            <span class="demonstration"><p><b>Let's Start!</b></p></span>
+            <el-carousel :interval="4000" height="300px" type="card">
+              <el-carousel-item v-for="item in 3" :key="item">
+              </el-carousel-item>
+            </el-carousel>
+          </div>
+          <div style="height: 295px;">
+  
+          </div>
+  
+          <!-- 设置对话框 -->
+          <el-dialog :visible.sync="visible" title="对话框" width="70%" draggable="true" >
+            <!-- Chat Box -->
+            <div style="height: 500px; overflow-y: auto;" id="bigBox">
+              <div v-for="(item, index) in list" class="msgCss" :style="{textAlign: item.align}">
+                <span v-if="item && item.align == 'left'">
+                  <div class="robotBox">
+                    <img style="
+                    width: 50px;
+                    height: 50px;
+                    vertical-align: middle;
+                    border-radius: 50%;
+                    padding-right: 10px;
+                  " src=".\image\robot.jpg" alt="" />
+                    <span v-if="item && item.link == ''" class="robotText">{{item.text}}</span>
+                    <span v-if="item && item.link">: <a :href="item.link" target="_blank">{{item.text}}</a></span>
+                  </div>
+                </span>
+                <span v-if="item && item.align == 'right'">
+                  <div class="userBox">
+                    <span class="userText">{{item.text}}</span>
+                    <img style="
+                    width: 50px;
+                    height: 50px;
+                    vertical-align: middle;
+                    border-radius: 50%;
+                    padding-right: 10px;
+                    padding-left: 10px;
+                  " src=".\image\user.jpg" alt="" />
+                  </div>
+  
+                </span>
+              </div>
             </div>
-          </div>
-          <!-- input area -->
-          <div style="margin-top: 15px">
-            <el-input placeholder="请输入内容" v-model="input3" class="input-with-select" :autofocus="true" ref="serachBox">
-              <el-button :loading="loading" @keydown.enter.native="handleMsg" slot="append" type="primary"
-              @click="handleMsg">send</el-button>
-            </el-input>
-          </div>
-        </el-dialog>
-
-        <!-- 设置热搜框 -->
-              
-        <el-dialog :visible.sync="visible1" title="热搜榜单" width="80%">
-          <el-table :data="tableData" stripe style="height: 500px ; width: 100%">
-            <el-table-column prop="question" label="Question" />
-          </el-table>
-        </el-dialog>
-      </div>
-    </el-config-provider>
+            <!-- input area -->
+            <div style="margin-top: 15px">
+              <el-autocomplete autosize :fetch-suggestions="querySearch" placeholder="请输入内容" v-model="input3" class="input-with-select" @select="handleSelect" ref="serachBox" style="width: 100%;">
+                <el-button :loading="loading" @keydown.enter.native="handleMsg" slot="append" type="primary"
+                @click="handleMsg">send</el-button>
+              </el-autocomplete>
+            </div>
+          </el-dialog>
+  
+          <!-- 设置热搜框 -->
+          <el-dialog class="hot_search" :visible.sync="visible1" title="热搜榜单" width="80%">
+            <el-table :data="tableData" stripe style="height: 500px ; width: 100%">
+              <el-table-column prop="question" label="Question" />
+            </el-table>
+          </el-dialog>
+        
+        </div>
+      </el-config-provider>
+    </template>
   </div>
 </body>
 
@@ -144,7 +146,7 @@
 </script>
 <!-- import JavaScript -->
 <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-<script setup>
+<script>
   //创建vue框架
   new Vue({
     el: "#app",
@@ -156,6 +158,7 @@
         list: [],
         loading: false,
         tableData: [],
+        dialogVisible: false
       };
     },
     created: function (){
@@ -210,7 +213,6 @@
           });
       },
       getData(){
-        console.log(1);
         axios
         .post("http://127.0.0.1:8000/data")
         .then((response) => {
@@ -238,7 +240,33 @@
         let div = document.getElementById("bigBox");
         div.scrollTop = div.scrollHeight;
       },
+
+      querySearch(queryString, cb) {
+        var restaurants = this.restaurants;
+        var results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
+      createFilter(queryString) {
+        return (restaurant) => {
+          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+      loadAll() {
+        return [
+          { "value": "hello", "address": "1" },
+          { "value": "How do you judge ChatGPT?", "address": "2" },
+          { "value": "nice to meet you", "address": "3" },
+          { "value": "Who are you?", "address": "4" },
+        ];
+      },
+      handleSelect(item) {
+        console.log(item);
+      },
     },
+    mounted() {
+        this.restaurants = this.loadAll();
+    }
   });
 </script>
 
